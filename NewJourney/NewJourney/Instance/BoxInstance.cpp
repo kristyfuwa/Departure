@@ -97,13 +97,13 @@ void BoxInstance::UpdateScene(float dt)
 	//
 	// Animate the cube
 	//
-	XMMATRIX V2 = XMMatrixRotationY(t);
-	XMStoreFloat4x4(&m_World, V2);
+	//XMMATRIX V2 = XMMatrixRotationY(t);
+	//XMStoreFloat4x4(&m_World, V2);
 }
 
 void BoxInstance::DrawScene()
 {
-	m_pD3dImmediateContext->ClearRenderTargetView(m_pRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
+	m_pD3dImmediateContext->ClearRenderTargetView(m_pRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	m_pD3dImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	m_pD3dImmediateContext->IASetInputLayout(m_pVertexLayout);
@@ -120,7 +120,7 @@ void BoxInstance::DrawScene()
 	ConstantBuffer cb;
 	cb.mWorld = XMLoadFloat4x4(&m_World);
 	cb.mView = XMLoadFloat4x4(&m_View);
-	cb.mProjection = XMLoadFloat4x4(&m_Proj);
+	cb.mProjection = XMLoadFloat4x4(&m_Proj);//不转置矩阵时，则需要再shader里边左乘矩阵。否则此处需要转置矩阵
 	m_pD3dImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL, &cb, 0, 0);
 	
 	m_pD3dImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
@@ -149,19 +149,19 @@ void BoxInstance::OnMouseMove(WPARAM btnState, int x, int y)
 	if ((btnState & MK_LBUTTON) != 0)
 	{
 		// Make each pixel correspond to a quarter of a degree.
-		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos.x));
-		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos.y));
+		float dx = XMConvertToRadians(0.25f*static_cast<float>(x - m_LastMousePos.x));
+		float dy = XMConvertToRadians(0.25f*static_cast<float>(y - m_LastMousePos.y));
 
 		// Update angles based on input to orbit camera around box.
 		m_fTheta += dx;
 		m_fPhi += dy;
 
-		//restrict the radius;
-		m_fRadius = D3DMathHelper::clamp(m_fRadius, 3.0f, 15.0f);
+		// Restrict the angle mPhi.
+		m_fPhi = D3DMathHelper::Clamp(m_fPhi, 0.1f, D3DMathHelper::PI - 0.1f);
 	}
 	else if ((btnState & MK_RBUTTON) != 0)
 	{
-		// Make each pixel correspond to 0.005 unit in the scene.
+		// Make each pixel correspond to 0.2 unit in the scene.
 		float dx = 0.005f*static_cast<float>(x - m_LastMousePos.x);
 		float dy = 0.005f*static_cast<float>(y - m_LastMousePos.y);
 
@@ -169,10 +169,12 @@ void BoxInstance::OnMouseMove(WPARAM btnState, int x, int y)
 		m_fRadius += dx - dy;
 
 		// Restrict the radius.
-		m_fRadius = D3DMathHelper::clamp(m_fRadius, 3.0f, 15.0f);
+		m_fRadius = D3DMathHelper::Clamp(m_fRadius, 3.0f, 15.0f);
 	}
+
 	m_LastMousePos.x = x;
 	m_LastMousePos.y = y;
+
 }
 
 void BoxInstance::OnMouseWheel(int degree)
@@ -239,14 +241,14 @@ void BoxInstance::BuildGeometryBuffers()
 {
 	Vertex vertices[] =
 	{
-		{ XMFLOAT3(-0.2f, -0.2f, -0.2f), (const float*)&Colors::White   },
-		{ XMFLOAT3(-0.2f, +0.2f, -0.2f), (const float*)&Colors::Black   },
-		{ XMFLOAT3(+0.2f, +0.2f, -0.2f), (const float*)&Colors::Red     },
-		{ XMFLOAT3(+0.2f, -0.2f, -0.2f), (const float*)&Colors::Green   },
-		{ XMFLOAT3(-0.2f, -0.2f, +0.2f), (const float*)&Colors::Blue    },
-		{ XMFLOAT3(-0.2f, +0.2f, +0.2f), (const float*)&Colors::Yellow  },
-		{ XMFLOAT3(+0.2f, +0.2f, +0.2f), (const float*)&Colors::Cyan    },
-		{ XMFLOAT3(+0.2f, -0.2f, +0.2f), (const float*)&Colors::Magenta }
+		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), (const float*)&Colors::White   },
+		{ XMFLOAT3(-1.0f, +1.0f, -1.0f), (const float*)&Colors::Black   },
+		{ XMFLOAT3(+1.0f, +1.0f, -1.0f), (const float*)&Colors::Red     },
+		{ XMFLOAT3(+1.0f, -1.0f, -1.0f), (const float*)&Colors::Green   },
+		{ XMFLOAT3(-1.0f, -1.0f, +1.0f), (const float*)&Colors::Blue    },
+		{ XMFLOAT3(-1.0f, +1.0f, +1.0f), (const float*)&Colors::Yellow  },
+		{ XMFLOAT3(+1.0f, +1.0f, +1.0f), (const float*)&Colors::Cyan    },
+		{ XMFLOAT3(+1.0f, -1.0f, +1.0f), (const float*)&Colors::Magenta }
 	};
 
 	D3D11_BUFFER_DESC vertexDesc;
@@ -269,18 +271,23 @@ void BoxInstance::BuildGeometryBuffers()
 		// front face
 		0, 1, 2,
 		0, 2, 3,
+
 		// back face
 		4, 6, 5,
 		4, 7, 6,
+
 		// left face
 		4, 5, 1,
 		4, 1, 0,
+
 		// right face
 		3, 2, 6,
 		3, 6, 7,
+
 		// top face
 		1, 5, 6,
 		1, 6, 2,
+
 		// bottom face
 		4, 0, 3,
 		4, 3, 7
@@ -317,7 +324,6 @@ void BoxInstance::BuildGeometryBuffers()
 	rasterizerDesc.FrontCounterClockwise = FALSE;
 	rasterizerDesc.DepthClipEnable = TRUE;
 	HR(m_pD3dDevice->CreateRasterizerState(&rasterizerDesc, &m_pRasterizerState));
-
 
 }
 

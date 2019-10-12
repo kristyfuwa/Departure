@@ -8,7 +8,7 @@ public:
 	~D3DMathHelper();
 
 	template<typename T>
-	static T clamp(const T& x, const T& low, const T& high)
+	static T Clamp(const T& x, const T& low, const T& high)
 	{
 		return x < low ? low : (x > high ? high : x);
 	}
