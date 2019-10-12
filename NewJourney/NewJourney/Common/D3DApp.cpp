@@ -2,6 +2,7 @@
 #include <sstream>
 #include <WindowsX.h>
 #include "D3DUtil.h"
+#include <assert.h>
 
 namespace
 {
@@ -184,6 +185,16 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			return 0;
 		}
+		case WM_KEYDOWN:
+		{
+			OnKeyDown(wParam);
+			return 0;
+		}
+		case WM_KEYUP:
+		{
+			OnKeyUp(wParam);
+			return 0;
+		}
 		case WM_ENTERSIZEMOVE:
 		{
 			m_bAppPaused = true;
@@ -202,6 +213,11 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 		{
 			PostQuitMessage(0);
+			return 0;
+		}
+		case WM_MOUSEWHEEL:
+		{
+			OnMouseWheel((short)HIWORD(wParam));
 			return 0;
 		}
 		case WM_MENUCHAR:

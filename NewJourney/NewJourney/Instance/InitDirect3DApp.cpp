@@ -1,5 +1,5 @@
 #include "InitDirect3DApp.h"
-#include "D3DUtil.h"
+#include "Common/D3DUtil.h"
 #include <assert.h>
 
 InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance):D3DApp(hInstance)

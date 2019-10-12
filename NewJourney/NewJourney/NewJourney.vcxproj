@@ -76,10 +76,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(DXSDK_DIR)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VC_IncludePath);$(DXSDK_DIR)Include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x86;$(ProjectDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>dxerr.lib;legacy_stdio_definitions.lib;d3d11.lib;d3dx11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -120,17 +120,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="D3DApp.cpp" />
-    <ClCompile Include="D3DUtil.cpp" />
-    <ClCompile Include="GameTimer.cpp" />
-    <ClCompile Include="InitDirect3DApp.cpp" />
+    <ClCompile Include="Common\D3DApp.cpp" />
+    <ClCompile Include="Common\D3DMathHelper.cpp" />
+    <ClCompile Include="Common\D3DUtil.cpp" />
+    <ClCompile Include="Common\GameTimer.cpp" />
+    <ClCompile Include="Instance\BoxInstance.cpp" />
+    <ClCompile Include="Instance\InitDirect3DApp.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D3DApp.h" />
-    <ClInclude Include="D3DUtil.h" />
-    <ClInclude Include="GameTimer.h" />
-    <ClInclude Include="InitDirect3DApp.h" />
+    <ClInclude Include="Common\D3DApp.h" />
+    <ClInclude Include="Common\D3DMathHelper.h" />
+    <ClInclude Include="Common\D3DUtil.h" />
+    <ClInclude Include="Common\GameTimer.h" />
+    <ClInclude Include="Instance\BoxInstance.h" />
+    <ClInclude Include="Instance\InitDirect3DApp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Instance\FX\Box.fx">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,5 @@
 #pragma once
-#include "D3DApp.h"
+#include "Common/D3DApp.h"
 class InitDirect3DApp :
 	public D3DApp
 {
